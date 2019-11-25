@@ -1223,26 +1223,31 @@ def printHelp():
 		"    --source=    specifikuje nazev xml souboru s programem IPPcode19",
 		"    --input=     je-li tento prepinac zadnan, interpret pouzije misto",
 		"                 standartniho vstupu vstup ze souboru",
+		"    --ifj=       spefifikuje soubor s programem napsaný v jazyce IFJCode19",
 		"    --help       Zborazi tuto pomocnou zpravu",
 		"    -i           Spusti interaktivni konzoli"
 	]))
 	sys.exit()
 
 try:
-	try: opts, args = getopt.getopt(sys.argv[1:], "i", ["help", "source=", "input="])
+	try: opts, args = getopt.getopt(sys.argv[1:], "i", ["help", "source=", "input=", "ifj="])
 	except getopt.GetoptError as err: raise IPPError(1, '')
 	sourceFile = None
 	inputFile = None
+	ifjFile = None
 	isInteractive = False
 	for  name, file in opts:
 		if name == "--help": printHelp()
 		elif name == "--source": sourceFile = file
 		elif name == "--input": inputFile = file
+		elif name == "--ifj": ifjFile = file
 		elif name == "-i": isInteractive = True
 	if isInteractive:
 		if sourceFile is not None:
 			raise IPPError(1, "--source is not compatible with interactive console. Yet.")
 		parser = InteractiveParser()
+	elif ifjFile != None:
+		parser = IFJFileParser(ifjFile)
 	else:
 		if sourceFile is None and inputFile is None:
 			raise IPPError(1, "You have to use at least one of --source, --input switches")	
