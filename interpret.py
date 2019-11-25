@@ -289,26 +289,8 @@ class XMLParser(Parser):
 		self.instructionPointer += 1
 		return self.instructions[self.instructionPointer]
 
-class InteractiveParser(Parser):
-	end = False
-	instNum = 1
-
-	def ended(self):
-		return self.end
-
-	def removeLastInstruction(self):
-		if len(self.instructions) != 0:
-			self.instructions.pop()
-			self.instNum -= 1
-			self.instructionPointer -= 1
-
-	def getInstructionFromUser(self):
-		try:
-			command = input("IPP19> ")
-		except EOFError:
-			print("")
-			self.end = True
-			return None
+class IFJParser(Parser):
+	def parseStringToInstruction(self, command, insturctionNumber):
 		if command == "": return None
 		commandStr = command.strip()
 		command = commandStr.split(" ")
@@ -316,7 +298,7 @@ class InteractiveParser(Parser):
 		try: 
 			instType = InstructionType[instStr.upper()]
 		except: 
-			print("Invalid instruction '"+instStr+"'")
+			print("Unknown instruction '"+instStr+"'")
 			return None
 		args = []
 		argnum = 1
@@ -342,7 +324,30 @@ class InteractiveParser(Parser):
 				return None
 			args.append(arg)
 			argnum += 1
-		return Instruction(self.instNum, instType, args)
+		return Instruction(insturctionNumber, instType, args)
+		
+
+class InteractiveParser(IFJParser):
+	end = False
+	instNum = 1
+
+	def ended(self):
+		return self.end
+
+	def removeLastInstruction(self):
+		if len(self.instructions) != 0:
+			self.instructions.pop()
+			self.instNum -= 1
+			self.instructionPointer -= 1
+
+	def getInstructionFromUser(self):
+		try:
+			inputstr = input("IPP19> ")
+		except EOFError:
+			print("")
+			self.end = True
+			return None
+		return self.parseStringToInstruction(inputstr, self.instNum)
 
 	def nextInstruction(self):
 		if self.instructionPointer + 1 <= len(self.instructions) - 1:
@@ -355,6 +360,30 @@ class InteractiveParser(Parser):
 		self.instructionPointer += 1
 		self.debug = True
 		return instruction
+
+class IFJFileParser(IFJParser):
+	instructions = []
+	instructionPointer = -1
+
+	def __init__(self, filename):
+		commands = []
+		with open(filename) as f:
+			commands = f.readlines()
+		self.debug = True
+		for i in range (0, len(commands)):
+			command = commands[i]
+			instruction = self.parseStringToInstruction(command.strip(), i+1)
+			if (instruction != None):
+				self.instructions.append(instruction)
+
+	def ended(self):
+		return self.instructionPointer + 1 >= len(self.instructions)
+
+	def nextInstruction(self):
+		if self.instructionPointer + 1 < len(self.instructions):
+			self.instructionPointer += 1
+			return self.instructions[self.instructionPointer]
+		return None
 
 class Value:
 	type = None
