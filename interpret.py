@@ -57,7 +57,7 @@ class InstructionType(Enum):
 	ADDS = "ADDS"
 	SUBS = "SUBS"
 	MULS = "MULS" 
-	IDIVS = "IDIVS"
+	DIVS = "DIVS"
 	LTS = "LTS"
 	GTS = "GTS"
 	EQS = "EQS"
@@ -66,6 +66,7 @@ class InstructionType(Enum):
 	NOTS = "NOTS"
 	INT2CHARS = "INT2CHARS"
 	STRI2INTS = "STRI2INTS"
+	INT2FLOATS = "INT2FLOATS"
 	JUMPIFEQS = "JUMPIFEQS"
 	JUMPIFNEQS = "JUMPIFNEQS"
 	
@@ -660,6 +661,7 @@ class Interpret:
 			InstructionType.BREAK: self.runBREAK,
 			InstructionType.INT2FLOAT: self.runINT2FLOAT,
 			InstructionType.FLOAT2INT: self.runFLOAT2INT,
+			InstructionType.INT2FLOATS: self.runINT2FLOATS,
 
 			InstructionType.PRINTINST: self.runPRINTINST,
 
@@ -667,7 +669,7 @@ class Interpret:
 			InstructionType.ADDS: self.runADDS,
 			InstructionType.SUBS: self.runSUBS,
 			InstructionType.MULS: self.runMULS,
-			InstructionType.IDIVS: self.runIDIVS,
+			InstructionType.DIVS: self.runDIVS,
 			InstructionType.LTS: self.runLTS,
 			InstructionType.GTS: self.runGTS,
 			InstructionType.EQS: self.runEQS,
@@ -908,6 +910,15 @@ class Interpret:
 		except: raise IPPError(58, "Can't convert float with value "+str(val.value)+" to int value")
 		val = Value(ArgumentType.INT, i)
 		self.enviroment.saveValue(val, instruction.args[0].address())
+
+	def runINT2FLOATS(self, instruction):
+		self.checkArgumentCount(instruction.args, 0)
+		val = self.enviroment.popValue()
+		self.checkType(val, [ArgumentType.INT])
+		try: f = float(val.value)
+		except: raise IPPError(58, "Can't convert integer with value "+str(val.value)+" to float value")
+		val = Value(ArgumentType.FLOAT, f)
+		self.enviroment.pushValue(val)
 		
 	def runREAD(self, instruction):
 		self.checkArgumentCount(instruction.args, 2)
@@ -1077,7 +1088,7 @@ class Interpret:
 		self.checkArgumentCount(instruction.args, 0)
 		val1 = self.enviroment.popValue()
 		val2 = self.enviroment.popValue()
-		self.checkType(val1, [ArgumentType.INT])
+		self.checkType(val1, [ArgumentType.INT, ArgumentType.FLOAT])
 		self.checkType(val2, [val1.type])
 		val = Value(val1.type, val1.value + val2.value)
 		self.enviroment.pushValue(val)
@@ -1086,7 +1097,7 @@ class Interpret:
 		self.checkArgumentCount(instruction.args, 0)
 		val1 = self.enviroment.popValue()
 		val2 = self.enviroment.popValue()
-		self.checkType(val1, [ArgumentType.INT])
+		self.checkType(val1, [ArgumentType.INT, ArgumentType.FLOAT])
 		self.checkType(val2, [val1.type])
 		val = Value(val1.type, val2.value - val1.value)
 		self.enviroment.pushValue(val)
@@ -1095,16 +1106,16 @@ class Interpret:
 		self.checkArgumentCount(instruction.args, 0)
 		val1 = self.enviroment.popValue()
 		val2 = self.enviroment.popValue()
-		self.checkType(val1, [ArgumentType.INT])
+		self.checkType(val1, [ArgumentType.INT, ArgumentType.FLOAT])
 		self.checkType(val2, [val1.type])
 		val = Value(val1.type, val1.value * val2.value)
 		self.enviroment.pushValue(val)
 		
-	def runIDIVS(self, instruction):
+	def runDIVS(self, instruction):
 		self.checkArgumentCount(instruction.args, 0)
 		val1 = self.enviroment.popValue()
 		val2 = self.enviroment.popValue()
-		self.checkType(val1, [ArgumentType.INT])
+		self.checkType(val1, [ArgumentType.INT, ArgumentType.FLOAT])
 		self.checkType(val2, [val1.type])
 		if val1.value == 0: raise IPPError(57, "Devision by zero is not posible")
 		val = Value(val1.type, int(val2.value / val1.value))
