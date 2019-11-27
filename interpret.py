@@ -590,12 +590,14 @@ class Interpret:
 	enviroment = None
 	input = None
 	isInteractive = False
+	step = False
 
-	def __init__(self, parser, input, isInteractive):
+	def __init__(self, parser, input, isInteractive, step):
 		self.parser = parser
 		self.enviroment = Enviroment()
 		self.input = input
 		self.isInteractive = isInteractive
+		self.step = step
 
 	def run(self):
 		while not self.parser.ended() and not self.isInteractive:
@@ -608,6 +610,7 @@ class Interpret:
 			if instruction is None:
 				continue
 			if self.parser.debug and instruction.type != InstructionType.PRINTINST: print(instruction)
+			if self.step: input()
 			try: self.parseInstruction(instruction)
 			except IPPError as error:
 				errorMessage = "Error in instruction "+str(instruction)+"\n"
@@ -1021,7 +1024,7 @@ class Interpret:
 		val = self.optionalForSymbol(instruction.args[1])
 		type = ''
 		if val is not None:
-			self.checkType(val, [ArgumentType.INT, ArgumentType.BOOL, ArgumentType.STRING, ArgumentType.NIL])
+			self.checkType(val, [ArgumentType.INT, ArgumentType.BOOL, ArgumentType.STRING, ArgumentType.NIL, ArgumentType.FLOAT])
 			type = str(val.type.value)
 		val = Value(ArgumentType.STRING, type)
 		self.enviroment.saveValue(val, instruction.args[0].address())
@@ -1225,16 +1228,18 @@ def printHelp():
 		"                 standartniho vstupu vstup ze souboru",
 		"    --ifj=       spefifikuje soubor s programem napsaný v jazyce IFJCode19",
 		"    --help       Zborazi tuto pomocnou zpravu",
-		"    -i           Spusti interaktivni konzoli"
+		"    -i           Spusti interaktivni konzoli",
+		"    -s           Krokuje program"
 	]))
 	sys.exit()
 
 try:
-	try: opts, args = getopt.getopt(sys.argv[1:], "i", ["help", "source=", "input=", "ifj="])
+	try: opts, args = getopt.getopt(sys.argv[1:], "is", ["help", "source=", "input=", "ifj="])
 	except getopt.GetoptError as err: raise IPPError(1, '')
 	sourceFile = None
 	inputFile = None
 	ifjFile = None
+	stepThrough = False
 	isInteractive = False
 	for  name, file in opts:
 		if name == "--help": printHelp()
@@ -1242,6 +1247,7 @@ try:
 		elif name == "--input": inputFile = file
 		elif name == "--ifj": ifjFile = file
 		elif name == "-i": isInteractive = True
+		elif name == "-s": stepThrough = True
 	if isInteractive:
 		if sourceFile is not None:
 			raise IPPError(1, "--source is not compatible with interactive console. Yet.")
@@ -1254,7 +1260,7 @@ try:
 		parser = XMLParser(sourceFile)
 		if sourceFile is None: 
 			parser.loadFromString(sys.stdin.read())
-	interpret = Interpret(parser, Input(inputFile), isInteractive)
+	interpret = Interpret(parser, Input(inputFile), isInteractive, stepThrough)
 	interpret.run()
 	sys.exit()
 except IPPError as error:
