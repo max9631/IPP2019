@@ -4,13 +4,20 @@ Login: xsalih01
 
 Cílem 2. úlohy do IPP je vytvořit program, který bude interpretovat XML soubor s instrukcemi z programovacího jazyka IPPCode19.
 
+Interpret mimo jiné podporuje přímou interpretaci jazyka IFJCode18 a IFJCode19 a krokování jednotlivých instruckcí.
 
 ## Interpret
 ### Způsob používání
-Interpret podporuje 3 přepínače:
+Interpret podporuje ~~3 přepínače~~ 7 přepínačů:
 	--help 		Vypíše pomocnou hlášku
 	--source= 	Specifikuje zdrojový soubor s XML dokumentem obsahující instrukce IPPCode19
 	--input=	Specifikuje textový soubor pro vstup interpretu namísto standartního vstupu
+	--ifj=		Specifikuje zdrojový soubor s jazykem IFJCode18 nebo IFJCode19
+	-i			Zapne interpret s interaktivní příkazovou řádkou
+	-s			Krokuje jednotlivé instrukce
+	-p			Vypíše paměť po každé instrukci
+
+Tento interpret je velmi pomocný nástroj při práci na překladači do předmětu IFJ. Doporučuji používání s přepínači `./interpret -s -p --ifj /path/to/your/ifj/file.ifjcode`
 
 ### Dekompozice
 Problematiku jsem dekomponoval do tří základních tříd (Parser, Interpret a Enviroment), 3 modelů (Instruction, Argument, Value) a 2 Enumů (InstructionType, ArgumentType)
@@ -25,4 +32,13 @@ Env se stará také o integritní omezení pamětí a v případě pokusu o pře
 Pro vypsání aktuálního stavu paměti stačí vypsat třídu env. // print(env)
 
 #### Interpret
-Interpret, který využívá obou tříd Enviroment a Parser si načítá následující instrukci v pořadí z objektu Parser, dekóduje jí, zkontroluje, zda obsahuje správný počet parametrů, načte potřebné hodnoty z env, pokud ji teda již argument neobsahuje, zkontroluje jejich typy a provede nad nimi požadovanou operaci a popřípadě vráti hodnotu na poskytnutou adresu do objektu env.
+Interpret, který využívá obou tříd Enviroment a Parser si načítá následující instrukci v pořadí z objektu Parser, dekóduje ji, zkontroluje, zda obsahuje správný počet parametrů, načte potřebné hodnoty z env, pokud ji teda již argument neobsahuje, zkontroluje jejich typy a provede nad nimi požadovanou operaci a popřípadě vráti hodnotu na poskytnutou adresu do objektu env.
+
+### Rozšíření
+Interpret oproti oficiální instrukční sadě podporuje ještě instrukce `PRINTINST` a `PRINTENV`, které jsou užitečné v interaktivní příkazové řádce.
+
+#### PRINTENV
+Vypíše obsah paměti na výstup.
+
+#### PRINTISNT
+Vypíše aktuální prováděnou intrukci.
