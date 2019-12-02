@@ -839,7 +839,7 @@ class Interpret:
 		val1 = self.valueForSymbol(instruction.args[1])
 		val2 = self.valueForSymbol(instruction.args[2])
 		self.checkType(val1, [ArgumentType.INT, ArgumentType.BOOL, ArgumentType.STRING, ArgumentType.NIL, ArgumentType.FLOAT])
-		self.checkType(val2, [val1.type])
+		self.checkType(val2, [val1.type, ArgumentType.NIL])
 		val = Value(ArgumentType.BOOL, val1.value == val2.value)
 		self.enviroment.saveValue(val, instruction.args[0].address())
 		
@@ -997,7 +997,7 @@ class Interpret:
 		self.checkType(val2, [ArgumentType.INT])
 		try:i = val1.value[val2.value]
 		except: raise IPPError(58, "Can't get character from string '"+str(val1.value)+"' at index "+str(val2.value))
-		val = Value(ArgumentType.INT, i)
+		val = Value(ArgumentType.STRING, i)
 		self.enviroment.saveValue(val, instruction.args[0].address())
 		
 	def runSETCHAR(self, instruction):
@@ -1015,7 +1015,7 @@ class Interpret:
 			raise IPPError(58, "Index out of range "+str(val1.value)+" for string "+str(val0.value))
 		string = list(val0.value)
 		string[val1.value] = ch
-		val = Value(ArgumentType.INT, "".join(string))
+		val = Value(ArgumentType.STRING, "".join(string))
 		self.enviroment.saveValue(val, instruction.args[0].address())
 		
 	def runTYPE(self, instruction):
@@ -1045,7 +1045,7 @@ class Interpret:
 		val1 = self.valueForSymbol(instruction.args[1])
 		val2 = self.valueForSymbol(instruction.args[2])
 		self.checkType(val1, ArgumentType.types())
-		self.checkType(val2, [val1.type])
+		self.checkType(val2, [val1.type, ArgumentType.NIL])
 		if val1.value == val2.value:
 			self.parser.instructionPointer = self.enviroment.pointerForLabel(instruction.args[0].makeValue())
 		
@@ -1055,7 +1055,7 @@ class Interpret:
 		val1 = self.valueForSymbol(instruction.args[1])
 		val2 = self.valueForSymbol(instruction.args[2])
 		self.checkType(val1, ArgumentType.types())
-		self.checkType(val2, [val1.type])
+		self.checkType(val2, [val1.type, ArgumentType.NIL])
 		if val1.value != val2.value:
 			self.parser.instructionPointer = self.enviroment.pointerForLabel(instruction.args[0].makeValue())
 		
@@ -1146,8 +1146,8 @@ class Interpret:
 		self.checkArgumentCount(instruction.args, 0)
 		val2 = self.enviroment.popValue()
 		val1 = self.enviroment.popValue()
-		self.checkType(val1, [ArgumentType.INT, ArgumentType.BOOL, ArgumentType.STRING, ArgumentType.FLOAT])
-		self.checkType(val2, [val1.type])
+		self.checkType(val1, [ArgumentType.INT, ArgumentType.BOOL, ArgumentType.STRING, ArgumentType.FLOAT, ArgumentType.NIL])
+		self.checkType(val2, [val1.type, ArgumentType.NIL])
 		val = Value(ArgumentType.BOOL, val1.value == val2.value)
 		self.enviroment.pushValue(val)
 		
@@ -1202,7 +1202,7 @@ class Interpret:
 		val2 = self.enviroment.popValue()
 		val1 = self.enviroment.popValue()
 		self.checkType(val1, ArgumentType.types())
-		self.checkType(val2, [val1.type])
+		self.checkType(val2, [val1.type, ArgumentType.NIL])
 		if val1.value == val2.value:
 			self.parser.instructionPointer = self.enviroment.pointerForLabel(instruction.args[0].makeValue())
 		
@@ -1212,7 +1212,7 @@ class Interpret:
 		val2 = self.enviroment.popValue()
 		val1 = self.enviroment.popValue()
 		self.checkType(val1, ArgumentType.types())
-		self.checkType(val2, [val1.type])
+		self.checkType(val2, [val1.type, ArgumentType.NIL])
 		if val1.value == val2.value:
 			self.parser.instructionPointer = self.enviroment.pointerForLabel(instruction.args[0].makeValue())
 
