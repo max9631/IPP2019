@@ -52,6 +52,7 @@ class InstructionType(Enum):
 	FLOAT2INT = "FLOAT2INT"
 
 	PRINTINST = "PRINTINST"
+	PRINTENV = "PRINTENV"
 
 	CLEARS = "CLEARS"
 	ADDS = "ADDS"
@@ -669,6 +670,7 @@ class Interpret:
 			InstructionType.INT2FLOATS: self.runINT2FLOATS,
 
 			InstructionType.PRINTINST: self.runPRINTINST,
+			InstructionType.PRINTENV: self.runPRINTENV,
 
 			InstructionType.CLEARS: self.runCLEARS,
 			InstructionType.ADDS: self.runADDS,
@@ -1083,6 +1085,11 @@ class Interpret:
 		self.checkArgumentCount(instruction.args, 0)
 		for ins in self.parser.instructions:
 			print(ins)
+
+	def runPRINTENV(self, instruction):
+		self.checkArgumentCount(instruction.args, 0)
+		for ins in self.parser.instructions:
+			print(self.enviroment)
 
 	def runCLEARS(self, instruction):
 		self.checkArgumentCount(instruction.args, 0)
