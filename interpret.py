@@ -372,8 +372,14 @@ class IFJFileParser(IFJParser):
 		with open(filename) as f:
 			commands = f.readlines()
 		self.debug = True
-		for i in range (0, len(commands)):
+		for i in range(0, len(commands)):
 			command = commands[i]
+			if i == 0:
+				if command.lower().strip() != ".ifjcode19" and command.lower().strip() != ".ifjcode19":
+					print("Soubor neobsahuje hlavičkový soubor .IFJCode")
+					exit()
+				else:
+					continue
 			instruction = self.parseStringToInstruction(command.strip(), i+1)
 			if (instruction != None):
 				self.instructions.append(instruction)
