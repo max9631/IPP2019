@@ -436,7 +436,8 @@ class Enviroment:
 				key = str(key)
 				space = tableLenght - 2 - len(key) -2 - 2
 				showKey = l == line
-				valRowCount = len(value)/space
+				valRowCount = len(value)/space if (space != 0) else len(value)
+				# valRowCount = (space != 0) ? len(value)/space : 
 				valRowCount = int(valRowCount) if (valRowCount % 1) == 0 else int(valRowCount) + 1
 				if (valRowCount + l) > line:
 					offset = line - l
@@ -477,7 +478,7 @@ class Enviroment:
 				i+=1
 			db.append(lacals)
 
-		tableLenght = 26
+		tableLenght = 42
 		out = "\n"
 		for frames in db:
 			lineNum = 1
@@ -848,8 +849,9 @@ class Interpret:
 		self.checkType(instruction.args[0], [ArgumentType.VAR])
 		val1 = self.valueForSymbol(instruction.args[1])
 		val2 = self.valueForSymbol(instruction.args[2])
-		self.checkType(val1, [ArgumentType.INT, ArgumentType.BOOL, ArgumentType.STRING, ArgumentType.NIL, ArgumentType.FLOAT])
-		self.checkType(val2, [val1.type, ArgumentType.NIL])
+		if val1.type != ArgumentType.NIL and val2.type != ArgumentType.NIL:
+			self.checkType(val1, [ArgumentType.INT, ArgumentType.BOOL, ArgumentType.STRING, ArgumentType.NIL, ArgumentType.FLOAT])
+			self.checkType(val2, [val1.type, ArgumentType.NIL])
 		val = Value(ArgumentType.BOOL, val1.value == val2.value)
 		self.enviroment.saveValue(val, instruction.args[0].address())
 		
@@ -1054,8 +1056,9 @@ class Interpret:
 		self.checkType(instruction.args[0], [ArgumentType.LABEL])
 		val1 = self.valueForSymbol(instruction.args[1])
 		val2 = self.valueForSymbol(instruction.args[2])
-		self.checkType(val1, ArgumentType.types())
-		self.checkType(val2, [val1.type, ArgumentType.NIL])
+		if val1.type != ArgumentType.NIL and val2.type != ArgumentType.NIL:
+			self.checkType(val1, ArgumentType.types())
+			self.checkType(val2, [val1.type, ArgumentType.NIL])
 		if val1.value == val2.value:
 			self.parser.instructionPointer = self.enviroment.pointerForLabel(instruction.args[0].makeValue())
 		
@@ -1064,8 +1067,9 @@ class Interpret:
 		self.checkType(instruction.args[0], [ArgumentType.LABEL])
 		val1 = self.valueForSymbol(instruction.args[1])
 		val2 = self.valueForSymbol(instruction.args[2])
-		self.checkType(val1, ArgumentType.types())
-		self.checkType(val2, [val1.type, ArgumentType.NIL])
+		if val1.type != ArgumentType.NIL and val2.type != ArgumentType.NIL:
+			self.checkType(val1, ArgumentType.types())
+			self.checkType(val2, [val1.type, ArgumentType.NIL])
 		if val1.value != val2.value:
 			self.parser.instructionPointer = self.enviroment.pointerForLabel(instruction.args[0].makeValue())
 		
@@ -1161,8 +1165,9 @@ class Interpret:
 		self.checkArgumentCount(instruction.args, 0)
 		val2 = self.enviroment.popValue()
 		val1 = self.enviroment.popValue()
-		self.checkType(val1, [ArgumentType.INT, ArgumentType.BOOL, ArgumentType.STRING, ArgumentType.FLOAT, ArgumentType.NIL])
-		self.checkType(val2, [val1.type, ArgumentType.NIL])
+		if val1.type != ArgumentType.NIL and val2.type != ArgumentType.NIL:
+			self.checkType(val1, [ArgumentType.INT, ArgumentType.BOOL, ArgumentType.STRING, ArgumentType.FLOAT, ArgumentType.NIL])
+			self.checkType(val2, [val1.type, ArgumentType.NIL])
 		val = Value(ArgumentType.BOOL, val1.value == val2.value)
 		self.enviroment.pushValue(val)
 		
@@ -1216,8 +1221,9 @@ class Interpret:
 		self.checkType(instruction.args[0], [ArgumentType.LABEL])
 		val2 = self.enviroment.popValue()
 		val1 = self.enviroment.popValue()
-		self.checkType(val1, ArgumentType.types())
-		self.checkType(val2, [val1.type, ArgumentType.NIL])
+		if val1.type != ArgumentType.NIL and val2.type != ArgumentType.NIL:
+			self.checkType(val1, ArgumentType.types())
+			self.checkType(val2, [val1.type, ArgumentType.NIL])
 		if val1.value == val2.value:
 			self.parser.instructionPointer = self.enviroment.pointerForLabel(instruction.args[0].makeValue())
 		
@@ -1226,8 +1232,9 @@ class Interpret:
 		self.checkType(instruction.args[0], [ArgumentType.LABEL])
 		val2 = self.enviroment.popValue()
 		val1 = self.enviroment.popValue()
-		self.checkType(val1, ArgumentType.types())
-		self.checkType(val2, [val1.type, ArgumentType.NIL])
+		if val1.type != ArgumentType.NIL or val2.type != ArgumentType.NIL:
+			self.checkType(val1, ArgumentType.types())
+			self.checkType(val2, [val1.type, ArgumentType.NIL])
 		if val1.value == val2.value:
 			self.parser.instructionPointer = self.enviroment.pointerForLabel(instruction.args[0].makeValue())
 
