@@ -9,6 +9,9 @@ Interpret mimo jiné podporuje přímou interpretaci jazyka IFJCode18 a IFJCode1
 
 Tento projekt byl psán na iPadu v programu Pythonista3 😏 📲 🚀
 
+### Demonstrace interpretu:  
+[![IPP Interpret](https://img.youtube.com/vi/T2CokZlyQGI/0.jpg)](https://www.youtube.com/watch?v=T2CokZlyQGI)
+
 ### Způsob používání
 Interpret podporuje ~~3 přepínače~~ 7 přepínačů:
 *	**--help** 		Vypíše pomocnou hlášku
